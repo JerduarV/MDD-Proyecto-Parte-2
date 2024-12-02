@@ -346,13 +346,43 @@ arbol4 = rpart(RECURSO ~ ENTIDAD + DEPTO + CLASE,
                data = df_ingresos,
                method = "class")
 
-rpart.plot(arbol4, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+rpart.plot(arbol4, type = 2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
            main ="Predicción de recurso", cex = 1)
 ```
 
 ```{r}
 # Poniendo a prueba el árbol 4
 
+# Caso 1
+# Entidad = 11130005 : MINGOB
+# Clase = 11000 : INGRESOS NO TRIBUTARIOS
+# Departamento = 100 : Guatemala
+
+
+caso1 <- data.frame(
+  ENTIDAD=c(11130005),
+  CLASE=c(11000),
+  DEPTO=c(100)
+  )
+
+result <- predict(arbol4,caso1, type="class")
+
+result # OTRAS MULTAS
+
+# Caso 2
+# Entidad = 11130007 : MINFIN
+# Clase = 25000 : ENDEUDAMIENTO PÚBLICO EXTERNO
+# Departamento = 2000 : Chiquimula
+
+caso2 <- data.frame(
+  ENTIDAD=c(11130007),
+  CLASE=c(25000),
+  DEPTO=c(2000)
+  )
+
+result2 <- predict(arbol4,caso2, type="class")
+
+result2 # DISMINUCIÓN DE CAJA Y BANCOS
 
 ```
 
