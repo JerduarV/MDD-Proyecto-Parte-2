@@ -1,0 +1,358 @@
+---
+title: "Proyecto parte 2"
+output: html_notebook
+---
+
+
+Carga de datos de ingresos y egresos del gobierno central para los años 2020 a
+2023
+
+```{r}
+
+#Carga de datos de ingreso
+PI2023 <- read.csv("PI2023.csv");
+PI2022 <- read.csv("PI2022.csv");
+PI2021 <- readxl::read_xlsx("PI2021.xlsx");
+PI2020 <- read.csv("PI2020.csv");
+PI2019 <- read.csv("PI2019.csv");
+PI2018 <- read.csv("PI2018.csv");
+PI2017 <- readxl::read_xlsx("PI2017.xlsx");
+PI2016 <- read.csv("PI2016.csv");
+
+#carga de datos de egresos
+PE2023 <- read.csv("PE2023.csv");
+PE2022 <- read.csv("PE2022.csv");
+PE2021 <- readxl::read_xlsx("PE2021.xlsx");
+PE2020 <- read.csv("PE2020.csv");
+PE2019 <- read.csv("PE2019.csv");
+PE2018 <- read.csv("PE2018.csv");
+PE2017 <- read.csv("PE2017.csv", sep = ";");
+PE2016 <- read.csv("PE2016.csv");
+
+```
+
+Estandarizando fuentes de datos:
+Cada set de datos por año tiene diferencias en cuento a la cantidad de columnas. Se dejará las columnas comunes numéricas para luego unificarlas
+
+```{r}
+
+library(dplyr)
+library(tidyverse)
+
+#RENOMBRANDO COLUMNAS
+
+columnas_ingreso <- c('EJERCICIO', 'ENTIDAD', 'DEPTO', 'CLASE', 'SECCION', 'GRUPO', 'COD_ECONOMICO', 'RECURSO', 'ASIGNADO', 'VIGENTE', 'DEVENGADO');
+
+PI2023_COL_RENAME = PI2023 %>% 
+  rename(c(EJERCICIO = ejercicio, ENTIDAD = codigoEntidad, DEPTO = codigoDepto, CLASE = codigoClase, SECCION = codigoSeccion,
+           GRUPO = codigoGrupo, COD_ECONOMICO = codNivelEconomicoOperativo, RECURSO = codigoRecurso, ASIGNADO = asignado, VIGENTE = vigente,
+           DEVENGADO = devengado
+           ))
+
+PI2022_COL_RENAME = PI2022 %>% 
+   rename(c(EJERCICIO = Ejercicio, ENTIDAD = Código.Entidad, DEPTO = Código.Departamento, CLASE = Código.Clase, SECCION = Código.Sección,
+           GRUPO = Código.Grupo, COD_ECONOMICO = Código.Económico.Nivel.Operativo, RECURSO = Código.Recurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2021_COL_RENAME = PI2021 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = CodigoEntidad, DEPTO = CodigoDepto, CLASE = CodigoClase, SECCION = CodigoSeccion,
+           GRUPO = CodigoGrupo, COD_ECONOMICO = CodNivelEconomicoOperativo, RECURSO = CodigoRecurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2020_COL_RENAME = PI2020 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = Código.Entidad, DEPTO = Código.Departamento, CLASE = Código.Clase, SECCION = Código.Sección,
+           GRUPO = Código.Grupo, COD_ECONOMICO = Código.Económico.Nivel.Operativo, RECURSO = Código.Recurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2019_COL_RENAME = PI2019 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = Código.Entidad, DEPTO = Código.Departamento, CLASE = Código.Clase, SECCION = Código.Sección,
+           GRUPO = Código.Grupo, COD_ECONOMICO = Código.Económico.Nivel.Operativo, RECURSO = Código.Recurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2018_COL_RENAME = PI2018 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = Código.Entidad, DEPTO = Código.Departamento, CLASE = Código.Clase, SECCION = Código.Sección,
+           GRUPO = Código.Grupo, COD_ECONOMICO = Código.Económico.Nivel.Operativo, RECURSO = Código.Recurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2017_COL_RENAME = PI2017 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = `Código Entidad`, DEPTO = `Código Departamento`, CLASE = `Código Clase`, SECCION = `Código Sección`,
+           GRUPO = `Código Grupo`, COD_ECONOMICO = `Código Económico Nivel Operativo`, RECURSO = `Código Recurso`, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+PI2016_COL_RENAME = PI2016 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = Código.Entidad, DEPTO = Código.Departamento, CLASE = Código.Clase, SECCION = Código.Sección,
+           GRUPO = Código.Grupo, COD_ECONOMICO = Código.Económico.Nivel.Operativo, RECURSO = Código.Recurso, ASIGNADO = Asignado, VIGENTE = Vigente,
+           DEVENGADO = Devengado
+           ))
+
+#Filtrando columnas con valor númerico para df de ingresos
+PI2023_READY <- PI2023_COL_RENAME[, names(PI2023_COL_RENAME) %in% columnas_ingreso];
+PI2022_READY <- PI2022_COL_RENAME[, names(PI2022_COL_RENAME) %in% columnas_ingreso];
+PI2021_READY <- PI2021_COL_RENAME[, names(PI2021_COL_RENAME) %in% columnas_ingreso];
+PI2020_READY <- PI2020_COL_RENAME[, names(PI2020_COL_RENAME) %in% columnas_ingreso];
+PI2019_READY <- PI2019_COL_RENAME[, names(PI2019_COL_RENAME) %in% columnas_ingreso];
+PI2018_READY <- PI2018_COL_RENAME[, names(PI2018_COL_RENAME) %in% columnas_ingreso];
+PI2017_READY <- PI2017_COL_RENAME[, names(PI2017_COL_RENAME) %in% columnas_ingreso];
+PI2016_READY <- PI2016_COL_RENAME[, names(PI2016_COL_RENAME) %in% columnas_ingreso];
+
+# Uniendo df de ingresos
+df_ingresos <- rbind(PI2023_READY, PI2022_READY, PI2021_READY, PI2020_READY, PI2019_READY, PI2018_READY, PI2017_READY, PI2016_READY);
+df_ingresos
+
+#Renombrando columnas para df de egresos
+
+columnas_egreso = c('EJERCICIO', 'ENTIDAD', 'UNIDAD_EJECUTOR', 'PROGRAMA', 'SUBPROGRAMA',
+           'PROYECTO', 'ACTIVIDAD', 'OBRA', 'DEPTO', 'MUNICIPIO', 
+           'TIPO_PRESPUESTO', 'GRUPO_GASTO', 'SUBGRUPO_GASTO', 'RENGLON', 'COD_ECO',
+           'FUENTE', 'ORGANISMO', 'CORRELATIVO', 'ASIGNADO', 'VIGENTE', 
+           'DEVENGADO')
+
+PE2023_COL_RENAME = PE2023 %>% 
+  rename(c(EJERCICIO = ejercicio, ENTIDAD = codigoEntidad, UNIDAD_EJECUTOR = codigoUnidadEjecutora, PROGRAMA = codigoPrograma, SUBPROGRAMA = codigoSubProg,
+           PROYECTO = codigoProyecto, ACTIVIDAD = codigoActividad, OBRA = codigoObra, DEPTO = codigoDepto, MUNICIPIO = codigoMunicipio, 
+           TIPO_PRESPUESTO = codigoTipoPresupuesto, GRUPO_GASTO = codigoGrupoGasto, SUBGRUPO_GASTO = codigoSubGrpGasto, RENGLON = codigoRenglon, COD_ECO = codigoEconomico,
+           FUENTE = codigoFuente, ORGANISMO = codigoOrganismo, CORRELATIVO = correlativo, ASIGNADO = asignado, VIGENTE = vigente, 
+           DEVENGADO = devengado))
+
+
+PE2022_COL_RENAME = PE2022 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2021_COL_RENAME = PE2021 %>%
+  rename(c(EJERCICIO = Ejercicio, ENTIDAD = CodigoEntidad, UNIDAD_EJECUTOR = CodigoUnidadEjecutora, PROGRAMA = CodigoPrograma, SUBPROGRAMA = CodigoSubProg,
+           PROYECTO = CodigoProyecto, ACTIVIDAD = CodigoActividad, OBRA = CodigoObra, DEPTO = CodigoDepto, MUNICIPIO = CodigoMunicipio, 
+           TIPO_PRESPUESTO = CodigoTipoPresupuesto, GRUPO_GASTO = CodigoGrupoGasto, SUBGRUPO_GASTO = CodigoSubGrpGasto, RENGLON = CodigoRenglon, COD_ECO = CodigoEconomico,
+           FUENTE = CodigoFuente, ORGANISMO = CodigoOrganismo, CORRELATIVO = Correlativo, ASIGNADO = Asignado, VIGENTE = Vigente, 
+           DEVENGADO = Devengado))
+
+#Agregando columna Ejercicio a set de 2020
+PE2020_NEWCOLUM = PE2020 %>%
+  add_column(EJERCICIO = 2020);
+
+PE2019_NEWCOLUM = PE2019 %>%
+  add_column(EJERCICIO = 2019);
+
+PE2017_NEWCOLUM = PE2017 %>%
+  add_column(EJERCICIO = 2017);
+
+PE2018_NEWCOLUM = PE2018 %>%
+  add_column(EJERCICIO = 2018);
+
+PE2016_NEWCOLUM = PE2016 %>%
+  add_column(EJERCICIO = 2016);
+
+PE2020_COL_RENAME = PE2020_NEWCOLUM %>%
+  rename(c(EJERCICIO = EJERCICIO, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2019_COL_RENAME = PE2019_NEWCOLUM %>%
+  rename(c(EJERCICIO = EJERCICIO, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2018_COL_RENAME = PE2018_NEWCOLUM %>%
+  rename(c(EJERCICIO = EJERCICIO, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2017_COL_RENAME = PE2017_NEWCOLUM %>%
+  rename(c(EJERCICIO = EJERCICIO, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2016_COL_RENAME = PE2016_NEWCOLUM %>%
+  rename(c(EJERCICIO = EJERCICIO, ENTIDAD = ENTIDAD, UNIDAD_EJECUTOR = CODIGO.UE, PROGRAMA = PROGRAMA, SUBPROGRAMA = Código.Sub.Programa,
+           PROYECTO = Código.Proyecto, ACTIVIDAD = Código.Actividad, OBRA = Código.Obra, DEPTO = Código.Departamento, MUNICIPIO = Código.Municipio, 
+           TIPO_PRESPUESTO = TIPO.GASTO, GRUPO_GASTO = GRUPO.GASTO, SUBGRUPO_GASTO = SUBGRUPO.GASTO, RENGLON = RENGLÓN, COD_ECO = Código.Económico.Nivel.Operativo,
+           FUENTE = FUENTE, ORGANISMO = Código.Organismo, CORRELATIVO = Código.de.Correlativo, ASIGNADO = ASIGNADO, VIGENTE = VIGENTE, 
+           DEVENGADO = DEVENGADO))
+
+PE2023_READY <- PE2023_COL_RENAME[, names(PE2023_COL_RENAME) %in% columnas_egreso];
+PE2022_READY <- PE2022_COL_RENAME[, names(PE2022_COL_RENAME) %in% columnas_egreso];
+PE2021_READY <- PE2021_COL_RENAME[, names(PE2021_COL_RENAME) %in% columnas_egreso];
+PE2020_READY <- PE2020_COL_RENAME[, names(PE2020_COL_RENAME) %in% columnas_egreso];
+PE2019_READY <- PE2019_COL_RENAME[, names(PE2019_COL_RENAME) %in% columnas_egreso];
+PE2018_READY <- PE2018_COL_RENAME[, names(PE2018_COL_RENAME) %in% columnas_egreso];
+PE2017_READY <- PE2017_COL_RENAME[, names(PE2017_COL_RENAME) %in% columnas_egreso];
+PE2016_READY <- PE2016_COL_RENAME[, names(PE2016_COL_RENAME) %in% columnas_egreso];
+
+#Uniendo df de egresos
+df_egresos <- rbind(PE2023_READY, PE2022_READY, PE2021_READY, PE2020_READY, PE2019_READY, PE2018_READY, PE2017_READY, PE2016_READY);
+df_egresos
+
+```
+
+Instalando e importando librerías
+
+```{r}
+install.packages("rpart")
+install.packages("rpart.plot")
+
+library(rpart)
+library(rpart.plot)
+
+```
+contruyendo árboles
+
+
+```{r}
+#ÁRBOL DE PREDICCIÓN DE ENTIDAD
+
+
+arbol1 = rpart(ENTIDAD ~ PROGRAMA + FUENTE, 
+               data = df_egresos,
+               method = "class")
+
+rpart.plot(arbol1, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de entidad", cex = 1)
+```
+```{r}
+#Poniendo a prueba arbol 1
+
+caso1 <- data.frame(
+  PROGRAMA=c(1),
+  FUENTE=c(11)
+  )
+
+caso2 = data.frame(
+  PROGRAMA = c(14),
+  FUENTE=c(51)
+)
+
+result <- predict(arbol1,caso1, type="class")
+
+result
+
+result2 = predict(arbol1, caso2, type="class")
+
+result2
+```
+
+```{r}
+#ÁRBOL DE PREDICCIÓN DE DEPARTAMENTO
+
+df_egresos
+
+arbol2 = rpart(PROGRAMA ~ PROYECTO + TIPO_PRESPUESTO + UNIDAD_EJECUTOR, 
+               data = df_egresos,
+               method = "class")
+
+rpart.plot(arbol2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de programa", cex = 1)
+```
+```{r}
+#PONIENDO A PRUEBA EL ÁRBOL 2
+
+# Caso 1
+# Proyecto = 0 : Sin proyecto
+# Tipo presupuesto = 30 : Deuda pública
+# Unidad ejecutora = 109 : DIRECCIÓN GENERAL DE EDUCACIÓN FÍSICA
+
+
+caso1 <- data.frame(
+  PROYECTO=c(0),
+  TIPO_PRESPUESTO=c(11),
+  UNIDAD_EJECUTOR=c(109)
+  )
+
+
+# Caso 2
+# Proyecto = 1: CONSTRUCCIÓN, MEJORAMIENTO Y AMPLIACIÓN DE INFRAESTRUCTURA PARA SERVICIOS DE SEGURIDAD POLICIAL
+# Tipo de prespuesto = 20: INVERSIÓN
+# Unidad ejecutora = 247: HOSPITAL DE RETALHULEU
+
+caso2 = data.frame(
+  PROYECTO=c(1),
+  TIPO_PRESPUESTO=c(20),
+  UNIDAD_EJECUTOR=c(247)
+)
+
+
+result <- predict(arbol2,caso1, type="class")
+
+result #ACTIVIDADES CENTRALES
+
+result2 = predict(arbol2, caso2, type="class")
+
+result2 #EDUCACIÓN ESCOLAR BÁSICA
+```
+```{r}
+#Árbol de predicción de entidad para ingresos
+
+arbol3 = rpart(ENTIDAD ~ CLASE + DEPTO, 
+               data = df_ingresos,
+               method = "class")
+
+rpart.plot(arbol3, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de entidad", cex = 1, )
+
+
+```
+```{r}
+#Poniendo a prueba el árbol 3
+
+# Caso 1
+# Clase = 23000 : DISMINUCIÓN DE OTROS ACTIVOS FINANCIEROS
+# Departamento = 1400 : Quiché
+
+
+caso1 <- data.frame(
+  CLASE=c(23000),
+  DEPTO=c(1400)
+  )
+
+result <- predict(arbol3,caso1, type="class")
+
+result #MINISTERIO DE FINANZAS PÚBLICAS
+
+# Caso 2
+# Clase = 15000 : VTA. DE BIENES Y SERV. DE LA ADM. PÚBLICA
+# Departamento = 2000 : Chiquimula
+
+caso2 <- data.frame(
+  CLASE=c(13000),
+  DEPTO=c(2000)
+  )
+
+result2 <- predict(arbol3,caso2, type="class")
+
+result2 #MINISTERIO DE LA DEFENSA NACIONAL
+```
+
+```{r}
+# Árbol de predicción de
+
+
+arbol4 = rpart(RECURSO ~ ENTIDAD + DEPTO + CLASE, 
+               data = df_ingresos,
+               method = "class")
+
+rpart.plot(arbol4, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de recurso", cex = 1)
+```
+
+```{r}
+# Poniendo a prueba el árbol 4
+
+
+```
+
