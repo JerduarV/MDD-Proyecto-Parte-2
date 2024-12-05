@@ -489,5 +489,112 @@ prediccion3 = predict(bosque, rf_caso3);
 prediccion3 # 14 - CONSTRUCCION DE OBRA PUBLICA
 
 ```
+Random Forest 2
+
+```{r}
+# Se continuará probando la predicción del recurso utilizado en los ingresos con
+# el algoritmo de random forest
+
+df_ingresos_rf = df_ingresos
+
+df_ingresos_rf$RECURSO = as.factor(df_ingresos_rf$RECURSO)
+
+set.seed(100)
+
+df_ingresos_rf = df_ingresos_rf[sample(1:nrow(df_ingresos_rf)),]
+
+index = sample(1:nrow(df_ingresos_rf), 0.8*nrow(df_ingresos_rf))
+
+train = df_ingresos_rf[index,]
+train <- na.omit(train)
+train <- droplevels(subset(train, RECURSO %in% names(which(table(train$RECURSO) > 0))))
+test = df_ingresos_rf[-index,]
+
+unique(df_ingresos_rf$RECURSO)
+
+head(df_ingresos_rf)
+
+#Creando bosque para predicción de recurso
+
+sum(is.na(df_ingresos_rf$CLASE))
+
+
+bosque2 = randomForest(
+  RECURSO ~ ENTIDAD + DEPTO + CLASE,
+  data = train,
+  ntree = 150,
+  mtry = 3
+)
+
+prueba2 = predict(bosque2, test)
+
+#Comprobando certeza del bosque
+
+matriz = table(test$RECURSO, prueba2)
+
+matriz
+
+pre <- sum(diag(matriz)) / sum(matriz)
+pre
+
+plot(bosque2)
+```
+# Poniendo a prueba el segundo random forest
+
+Como se puede observar el bosque aleatorio 2 tiene una menor precisión que el
+primer árbol, por lo que las predicciones realizadas tienen un mucho mayor margen
+de error.
+
+```{r}
+
+# Se pondrá a prueba el bosque aleatorio
+
+# Poniendo a prueba el árbol 4
+
+# Caso 1
+# Entidad = 11130005 : MINGOB
+# Clase = 11000 : INGRESOS NO TRIBUTARIOS
+# Departamento = 100 : Guatemala
+
+
+rf_caso4 <- data.frame(
+  ENTIDAD=c(11130005),
+  CLASE=c(11000),
+  DEPTO=c(100)
+  )
+
+prediccion4 = predict(bosque2, rf_caso4);
+prediccion4 # 11210 - SOBRE EL TRANSPORTE TERRESTRE
+
+
+# Caso 2
+# Entidad = 11130015 : MINISTERIO DE CULTURA Y DEPORTES
+# Clase = 23000 : DISMINUCIÓN DE OTROS ACTIVOS FINANCIEROS
+# Departamento = 0 : No especificado
+
+
+rf_caso5 <- data.frame(
+  ENTIDAD=c(11130015),
+  CLASE=c(23000),
+  DEPTO=c(0)
+  )
+
+prediccion5 = predict(bosque2, rf_caso5);
+prediccion5 # 23110 - DISMINUCIÓN DE CAJA Y BANCOS
+
+# Caso 3
+# Entidad = 11130009 : MINISTERIO DE SALUD PÚBLICA
+# Clase = 13000 : VTA. DE BIENES Y SERV. DE LA ADM. PÚBLICA
+# Departamento = 1600 : ALTA VERAPAZ
+
+rf_caso6 <- data.frame(
+  ENTIDAD=c(11130009),
+  CLASE=c(13000),
+  DEPTO=c(1600)
+  )
+
+prediccion6 = predict(bosque2, rf_caso6);
+prediccion6 # 13230 - SERVICIOS EDUCACIONALES
+```
 
 
