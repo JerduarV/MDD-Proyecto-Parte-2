@@ -339,7 +339,7 @@ result2 #MINISTERIO DE LA DEFENSA NACIONAL
 ```
 
 ```{r}
-# Árbol de predicción de
+# Árbol de predicción de el recurso utilizado en los ingresos
 
 
 arbol4 = rpart(RECURSO ~ ENTIDAD + DEPTO + CLASE, 
@@ -385,4 +385,109 @@ result2 <- predict(arbol4,caso2, type="class")
 result2 # DISMINUCIÓN DE CAJA Y BANCOS
 
 ```
+Random Forest
+```{r}
+#Instalando librerías necesarias para random fores
+install.packages("randomForest")
+library(randomForest)
+```
+Random Forest 1
+```{r}
+# Se continuará probando la predicción de la fuentes de ingresos ahora aplicando
+# el algoritmo de random forest
+
+df_egresos_rf = df_egresos
+
+df_egresos_rf$PROGRAMA = as.factor(df_egresos_rf$PROGRAMA)
+
+set.seed(100)
+
+df_egresos_rf = df_egresos_rf[sample(1:nrow(df_egresos_rf)),]
+
+index = sample(1:nrow(df_egresos_rf), 0.8*nrow(df_egresos_rf))
+
+train = df_egresos_rf[index,]
+test = df_egresos_rf[-index,]
+
+unique(df_egresos_rf$PROGRAMA)
+
+#Creando bosque para predicción de programa
+
+bosque = randomForest(
+  PROGRAMA ~ PROYECTO + TIPO_PRESPUESTO + UNIDAD_EJECUTOR,
+  data = train,
+  ntree = 150,
+  mtry = 10
+)
+
+prueba = predict(bosque, test)
+
+#Comprobando certeza del bosque
+
+matriz = table(test$PROGRAMA, prueba)
+
+matriz
+
+pre <- sum(diag(matriz)) / sum(matriz)
+pre
+
+plot(bosque)
+
+```
+Poniendo a prueba el primer bosque
+
+```{r}
+# La certeza del árbol quedó en 39% y no mejoró aun cuando se aumento el número
+# de árboles de 100 a 150, por lo que se dejó de esa forma
+
+#CASO 1
+# Caso 1
+# Proyecto = 0 : Sin proyecto
+# Tipo presupuesto = 30 : Deuda pública
+# Unidad ejecutora = 109 : DIRECCIÓN GENERAL DE EDUCACIÓN FÍSICA
+
+
+rf_caso1 <- data.frame(
+  PROYECTO=c(0),
+  TIPO_PRESPUESTO=c(10),
+  UNIDAD_EJECUTOR=c(109)
+  )
+
+prediccion = predict(bosque, rf_caso1);
+prediccion # 3 - ACTIVIDADES COMUNES A LOS PROGRAMAS 11, 13 Y 14 SERVICIOS DE EDUCACIÓN, SALUD Y ASTILLERO NAVAL
+
+# CASO 2
+
+# Proyecto = 1: INFRAESTRUCTURA DE SISTEMAS DE RIEGO
+# Tipo presupuesto = 20 : Inversión
+# Unidad ejecutora = 133 : CONSEJO NACIONAL DE EDUCACIÓN
+
+rf_caso2 <- data.frame(
+  PROYECTO=c(1),
+  TIPO_PRESPUESTO=c(20),
+  UNIDAD_EJECUTOR=c(133)
+  )
+
+prediccion2 = predict(bosque, rf_caso2);
+prediccion2 # 1 - ACTIVIDADES CENTRALES
+
+
+# CASO 3
+
+# Proyecto = 3: CONSTRUCCION, AMPLIACION, REPOSICION Y MEJORAMIENTO DE EDIFICIOS ADMINISTRATIVOS DE OTRAS ENTIDADES DEL GOBIERNO CENTRAL
+# Tipo presupuesto = 20 : Inversión
+# Unidad ejecutora = 206 : UNIDAD DE CONSTRUCCIÓN DE EDIFICIOS DEL ESTADO -UCEE-
+
+
+rf_caso3 <- data.frame(
+  PROYECTO=c(2),
+  TIPO_PRESPUESTO=c(20),
+  UNIDAD_EJECUTOR=c(206)
+  )
+
+prediccion3 = predict(bosque, rf_caso3);
+prediccion3 # 14 - CONSTRUCCION DE OBRA PUBLICA
+
+```
+
 
