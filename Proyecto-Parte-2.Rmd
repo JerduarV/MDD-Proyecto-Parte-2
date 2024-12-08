@@ -228,10 +228,18 @@ rpart.plot(arbol1, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.pale
 ```{r}
 #Poniendo a prueba arbol 1
 
+# Caso 1
+# PROGRAMA = 1 - ACTIVIDADES CENTRALES
+# FUENTE = 11 - INGRESOS CORRIENTES
+
 caso1 <- data.frame(
   PROGRAMA=c(1),
   FUENTE=c(11)
   )
+
+# Caso 2
+# PROGRAMA = 14 - APOYO PARA EL CONSUMO ADECUADO DE ALIMENTOS
+# FUENTE = 51 - COLOCACIONES EXTERNAS
 
 caso2 = data.frame(
   PROGRAMA = c(14),
@@ -248,7 +256,7 @@ result2
 ```
 
 ```{r}
-#ÁRBOL DE PREDICCIÓN DE DEPARTAMENTO
+#ÁRBOL DE PREDICCIÓN DE PROGRAMA
 
 df_egresos
 
@@ -430,10 +438,12 @@ matriz
 
 pre <- sum(diag(matriz)) / sum(matriz)
 pre
-
-plot(bosque)
-
 ```
+```{r}
+# Dibujando bosque
+plot(bosque)
+```
+
 Poniendo a prueba el primer bosque
 
 ```{r}
@@ -595,6 +605,12 @@ rf_caso6 <- data.frame(
 
 prediccion6 = predict(bosque2, rf_caso6);
 prediccion6 # 13230 - SERVICIOS EDUCACIONALES
+```
+# Exportar data frames de ingresos y egresos a csv para su análisis en Python
+
+```{r}
+write.csv(df_ingresos, "df_ingresos.csv", row.names = FALSE)
+write.csv(df_egresos, "df_egresos.csv", row.names = FALSE)
 ```
 
 
